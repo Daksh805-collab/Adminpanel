@@ -3,18 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EasySmm Master Admin</title>
-    
-    <script>
-        window.onerror = function(msg, url, lineNo) {
-            alert("🚨 SYSTEM CRASH DETECTED!\n\nError: " + msg + "\nLine: " + lineNo + "\n\nPlease tell me exactly what this says so I can fix it!");
-            return false;
-        };
-    </script>
-
+    <title>EasySmm Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -27,7 +18,7 @@
         .badge { background: #ef4444; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; }
         .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 20px; box-sizing: border-box; width: 100%;}
         .section { display: none; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px;}
-        .section.active { display: block; animation: fadeIn 0.3s; }
+        .section.active { display: block; }
         
         @media (max-width: 768px) {
             body { flex-direction: column; }
@@ -41,15 +32,11 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; min-width: 600px;}
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
         th { background: #f8fafc; color: #64748b; font-weight: 600; }
-        
         input, select, textarea { padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; box-sizing: border-box; font-family: inherit;}
         .btn { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; color: white; margin-bottom: 5px; width: 100%;}
         .btn-blue { background: #3b82f6; } .btn-green { background: #10b981; } .btn-red { background: #ef4444; } .btn-warn { background: #f59e0b; } .btn-purple { background: #8b5cf6; }
-        
         .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-box { background: #f8fafc; padding: 15px; border-radius: 10px; border-left: 4px solid #3b82f6; border-right: 1px solid #e2e8f0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;}
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -82,80 +69,57 @@
                 <button class="btn btn-blue" onclick="applyBulk()">Update Selected</button>
             </div>
             <div class="table-wrapper">
-                <table>
-                    <thead><tr><th><input type="checkbox" onclick="selectAll(this)"></th><th>User</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead>
-                    <tbody id="ordersTable"></tbody>
-                </table>
+                <table><thead><tr><th><input type="checkbox" onclick="selectAll(this)"></th><th>User</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ordersTable"></tbody></table>
             </div>
         </div>
 
         <div id="sec-utr" class="section">
             <h2 style="margin-top: 0;">Pending Payments</h2>
-            <div class="table-wrapper">
-                <table><thead><tr><th>User</th><th>Amount</th><th>UTR</th><th>Action</th></tr></thead><tbody id="utrTable"></tbody></table>
-            </div>
+            <div class="table-wrapper"><table><thead><tr><th>User</th><th>Amount</th><th>UTR</th><th>Action</th></tr></thead><tbody id="utrTable"></tbody></table></div>
         </div>
 
         <div id="sec-tickets" class="section">
             <h2 style="margin-top: 0;">Support Tickets</h2>
-            <div class="table-wrapper">
-                <table><thead><tr><th>User</th><th>Subject / Msg</th><th>Action</th></tr></thead><tbody id="ticketTable"></tbody></table>
-            </div>
+            <div class="table-wrapper"><table><thead><tr><th>User</th><th>Subject / Msg</th><th>Action</th></tr></thead><tbody id="ticketTable"></tbody></table></div>
         </div>
 
         <div id="sec-users" class="section">
             <h2 style="margin-top: 0;">User Database</h2>
             <div style="background:#f8fafc; padding:15px; border-radius:10px; margin-bottom:15px;">
-                <input type="text" id="t-user" placeholder="Username">
-                <input type="number" id="t-amt" placeholder="Amount (₹)">
+                <input type="text" id="t-user" placeholder="Username"><input type="number" id="t-amt" placeholder="Amount (₹)">
                 <button class="btn btn-green" onclick="addF()">Direct Add Funds</button>
             </div>
-            <div class="table-wrapper">
-                <table><thead><tr><th>User</th><th>Wallet</th><th>Pass</th><th>Status</th></tr></thead><tbody id="usersTable"></tbody></table>
-            </div>
+            <div class="table-wrapper"><table><thead><tr><th>User</th><th>Wallet</th><th>Pass</th><th>Status</th></tr></thead><tbody id="usersTable"></tbody></table></div>
         </div>
 
         <div id="sec-services" class="section">
             <h2 style="margin-top: 0;">Service Editor</h2>
             <div style="background:#f8fafc; padding:15px; border-radius:10px; margin-bottom: 15px;">
-                <input id="s-cat" placeholder="Category (e.g. Instagram)">
-                <input id="s-name" placeholder="Service Name">
-                <input id="s-price" type="number" placeholder="Price (₹)">
-                <input id="s-api" type="number" placeholder="Provider API ID (e.g. 105)">
+                <input id="s-cat" placeholder="Category (e.g. Instagram)"><input id="s-name" placeholder="Service Name">
+                <input id="s-price" type="number" placeholder="Price (₹)"><input id="s-api" type="number" placeholder="Provider API ID (e.g. 105)">
                 <select id="s-health"><option value="Fast">🟢 Fast</option><option value="Slow">🟡 Slow</option><option value="Offline">🔴 Offline</option></select>
                 <button class="btn btn-blue" onclick="addS()">Add Service</button>
             </div>
-            <div class="table-wrapper">
-                <table><thead><tr><th>Service</th><th>Price/API</th><th>Action</th></tr></thead><tbody id="servTable"></tbody></table>
-            </div>
+            <div class="table-wrapper"><table><thead><tr><th>Service</th><th>Price/API</th><th>Action</th></tr></thead><tbody id="servTable"></tbody></table></div>
         </div>
 
         <div id="sec-api" class="section">
             <h2 style="margin-top: 0;"><i class="fa-solid fa-key"></i> API, Alerts & Tools</h2>
-            
             <div style="background:#fef2f2; padding:15px; border-radius:10px; border: 1px solid #fca5a5; margin-bottom: 15px;">
                 <label style="font-weight: bold; color: #991b1b;">Provider API Key (easysmmpanel.com)</label>
-                <input type="text" id="apiIn" placeholder="Paste Secret API Key Here">
-                <button class="btn btn-purple" onclick="updateAPI()">Save API Key</button>
+                <input type="text" id="apiIn" placeholder="Paste Secret API Key Here"><button class="btn btn-purple" onclick="updateAPI()">Save API Key</button>
             </div>
-
             <div style="background:#f0fdf4; padding:15px; border-radius:10px; border: 1px solid #bbf7d0; margin-bottom: 15px;">
                 <label style="font-weight: bold; color: #166534;">WhatsApp Support Number</label>
-                <input type="number" id="waIn" placeholder="91XXXXXXXXXX">
-                <button class="btn btn-green" onclick="updateWA()">Save WhatsApp</button>
+                <input type="number" id="waIn" placeholder="91XXXXXXXXXX"><button class="btn btn-green" onclick="updateWA()">Save WhatsApp</button>
             </div>
-
             <div style="background:#fffbeb; padding:15px; border-radius:10px; border:1px solid #fde68a; margin-bottom: 15px;">
                 <label style="font-weight: bold; color: #92400e;">Send Push Alert to All Users</label>
-                <input type="text" id="pushMsg" placeholder="e.g. 50% OFF TODAY!">
-                <button class="btn btn-warn" onclick="sendPush()">Broadcast Now</button>
+                <input type="text" id="pushMsg" placeholder="e.g. 50% OFF TODAY!"><button class="btn btn-warn" onclick="sendPush()">Broadcast Now</button>
             </div>
-
             <div style="background:#f8fafc; padding:15px; border-radius:10px; border: 1px solid #e2e8f0;">
                 <label style="font-weight: bold;">Maintenance Mode</label>
-                <select id="mSwitch" onchange="db.ref('settings').update({maintenance:this.value==='true'})">
-                    <option value="false">Live</option><option value="true">Under Maintenance</option>
-                </select>
+                <select id="mSwitch" onchange="db.ref('settings').update({maintenance:this.value==='true'})"><option value="false">Live</option><option value="true">Under Maintenance</option></select>
             </div>
         </div>
     </div>
@@ -172,7 +136,6 @@
         firebase.initializeApp(firebaseConfig); const db = firebase.database();
 
         let currentApiKey = ""; let serviceMap = {};
-        
         db.ref('settings/api_key').on('value', s => { currentApiKey = s.val() || ""; let el = document.getElementById('apiIn'); if(el) el.value = currentApiKey; });
         db.ref('settings/whatsapp').on('value', s => { let el = document.getElementById('waIn'); if(s.val() && el) el.value = s.val(); });
         db.ref('settings/maintenance').on('value', s => { let el = document.getElementById('mSwitch'); if(el) el.value = s.val() ? 'true' : 'false'; });
@@ -183,39 +146,28 @@
         function sendPush() { let msg = document.getElementById('pushMsg').value.trim(); if(msg) { db.ref('settings/notification').set({ msg: msg, time: Date.now() }); alert("Broadcast sent!"); document.getElementById('pushMsg').value = ""; } }
 
         db.ref('orders').on('value', snap => {
-            let h="", r=0, c=0;
-            snap.forEach(i => {
-                let d = i.val(); 
-                let chargeAmt = Number(d.charge) || 0;
-                let qtyAmt = d.qty || 0;
-                let sName = d.service || "Unknown";
-                r += chargeAmt; c++; 
-                
-                let actionHTML = "";
-                if(d.cancel_request) actionHTML += `<button class="btn btn-red" onclick="approveRefund('${i.key}', '${d.user}', ${chargeAmt})">Approve Refund</button>`;
-                if(d.refill_status === 'Requested') actionHTML += `<button class="btn btn-warn" onclick="db.ref('orders/${i.key}').update({refill_status: 'Processing'})">Mark Refilling</button>`;
-                
-                let providerId = serviceMap[sName];
-                if(d.status === 'Pending' && providerId && !d.provider_order_id) {
-                    actionHTML += `<button class="btn btn-purple" onclick="sendToProvider('${i.key}', '${providerId}', '${d.link}', ${qtyAmt})">Send to API</button>`;
-                } else if(d.provider_order_id) {
-                    actionHTML += `<span style="font-size:11px; color:var(--success); font-weight:bold;">API ID: #${d.provider_order_id}</span>`;
-                }
+            try {
+                let h="", r=0, c=0;
+                snap.forEach(i => {
+                    let d = i.val(); 
+                    let chargeAmt = Number(d.charge) || 0; let qtyAmt = d.qty || 0; let sName = d.service || "Unknown";
+                    r += chargeAmt; c++; 
+                    
+                    let actionHTML = "";
+                    if(d.cancel_request) actionHTML += `<button class="btn btn-red" onclick="approveRefund('${i.key}', '${d.user}', ${chargeAmt})">Approve Refund</button>`;
+                    if(d.refill_status === 'Requested') actionHTML += `<button class="btn btn-warn" onclick="db.ref('orders/${i.key}').update({refill_status: 'Processing'})">Mark Refilling</button>`;
+                    
+                    let providerId = serviceMap[sName];
+                    if(d.status === 'Pending' && providerId && !d.provider_order_id) actionHTML += `<button class="btn btn-purple" onclick="sendToProvider('${i.key}', '${providerId}', '${d.link}', ${qtyAmt}, this)">Send to API</button>`;
+                    else if(d.provider_order_id) actionHTML += `<span style="font-size:11px; color:var(--success); font-weight:bold;">API ID: #${d.provider_order_id}</span>`;
 
-                h += `<tr>
-                    <td><input type="checkbox" class="chk" value="${i.key}"></td>
-                    <td><b>${d.user || 'Unknown'}</b></td>
-                    <td><strong style="color:#2563eb;">${sName}</strong><br><small>Qty: ${qtyAmt} | ₹${chargeAmt}</small></td>
-                    <td>
-                        <select onchange="db.ref('orders/${i.key}').update({status:this.value})" style="padding:5px;">
-                            <option ${d.status==='Pending'?'selected':''}>Pending</option><option ${d.status==='Processing'?'selected':''}>Processing</option>
-                            <option ${d.status==='Completed'?'selected':''}>Completed</option><option ${d.status==='Cancelled'?'selected':''}>Cancelled</option>
-                        </select>
-                    </td>
-                    <td>${actionHTML}</td>
-                </tr>`;
-            });
-            document.getElementById('ordersTable').innerHTML = h; document.getElementById('totRev').innerText = "₹" + r.toFixed(2); document.getElementById('totOrders').innerText = c;
+                    h += `<tr><td><input type="checkbox" class="chk" value="${i.key}"></td><td><b>${d.user || 'Unknown'}</b></td>
+                        <td><strong style="color:#2563eb;">${sName}</strong><br><small>Qty: ${qtyAmt} | ₹${chargeAmt}</small></td>
+                        <td><select onchange="db.ref('orders/${i.key}').update({status:this.value})" style="padding:5px;"><option ${d.status==='Pending'?'selected':''}>Pending</option><option ${d.status==='Processing'?'selected':''}>Processing</option><option ${d.status==='Completed'?'selected':''}>Completed</option><option ${d.status==='Cancelled'?'selected':''}>Cancelled</option></select></td>
+                        <td>${actionHTML}</td></tr>`;
+                });
+                document.getElementById('ordersTable').innerHTML = h; document.getElementById('totRev').innerText = "₹" + r.toFixed(2); document.getElementById('totOrders').innerText = c;
+            } catch(e) { console.error(e); }
         });
 
         db.ref('payments').on('value', snap => {
@@ -232,18 +184,13 @@
 
         db.ref('users').on('value', snap => {
             let h="", count=0;
-            snap.forEach(i => { 
-                count++; let d = i.val(); 
-                let banBtn = d.banned ? `<button class="btn btn-blue" onclick="db.ref('users/${i.key}').update({banned: false})">Unban</button>` : `<button class="btn btn-red" onclick="db.ref('users/${i.key}').update({banned: true})">Ban</button>`;
-                h += `<tr><td><b>${i.key}</b></td><td>₹${(d.balance||0).toFixed(2)}</td><td>${d.password}</td><td>${banBtn}</td></tr>`; 
-            });
+            snap.forEach(i => { count++; let d = i.val(); let banBtn = d.banned ? `<button class="btn btn-blue" onclick="db.ref('users/${i.key}').update({banned: false})">Unban</button>` : `<button class="btn btn-red" onclick="db.ref('users/${i.key}').update({banned: true})">Ban</button>`;
+                h += `<tr><td><b>${i.key}</b></td><td>₹${(d.balance||0).toFixed(2)}</td><td>${d.password}</td><td>${banBtn}</td></tr>`; });
             document.getElementById('usersTable').innerHTML = h; document.getElementById('totUsers').innerText = count;
         });
 
         db.ref('services').on('value', snap => {
-            let h=""; snap.forEach(i => { let d = i.val(); 
-                h += `<tr><td><small>${d.category}</small><br><b>${d.name}</b></td><td>₹${d.price}<br><small>API ID: ${d.provider_id || 'None'}</small></td><td><button class="btn btn-red" onclick="if(confirm('Delete?')) db.ref('services/${i.key}').remove()">Delete</button></td></tr>`; 
-            });
+            let h=""; snap.forEach(i => { let d = i.val(); h += `<tr><td><small>${d.category}</small><br><b>${d.name}</b></td><td>₹${d.price}<br><small>API ID: ${d.provider_id || 'None'}</small></td><td><button class="btn btn-red" onclick="if(confirm('Delete?')) db.ref('services/${i.key}').remove()">Delete</button></td></tr>`; });
             document.getElementById('servTable').innerHTML = h;
         });
 
@@ -258,11 +205,17 @@
             if(c && n && p) { db.ref('services').push({category: c, name: n, price: p, provider_id: api, health: h}); document.getElementById('s-cat').value=""; document.getElementById('s-name').value=""; document.getElementById('s-price').value=""; document.getElementById('s-api').value="";} else alert("Fill missing fields.");
         }
 
-        async function sendToProvider(firebaseOrderId, providerServiceId, targetLink, orderQty) {
+        async function sendToProvider(firebaseOrderId, providerServiceId, targetLink, orderQty, btnEl) {
             if(!currentApiKey) return alert("Please enter your Provider API Key in the 'API & Tools' tab first!");
-            const btn = event.currentTarget; btn.innerHTML = 'Sending...'; btn.disabled = true;
+            btnEl.innerHTML = 'Sending...'; btnEl.disabled = true;
             const formData = new URLSearchParams(); formData.append('key', currentApiKey); formData.append('action', 'add'); formData.append('service', providerServiceId); formData.append('link', targetLink); formData.append('quantity', orderQty);
             try {
                 let response = await fetch('https://corsproxy.io/?https://easysmmpanel.com/api/v2', { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
                 let result = await response.json();
-              
+                if (result.order) { db.ref('orders/' + firebaseOrderId).update({ status: 'Processing', provider_order_id: result.order }); alert("Success! Sent to Provider."); } 
+                else { alert("API Error: " + result.error); btnEl.innerHTML = 'Retry API'; btnEl.disabled = false; }
+            } catch (error) { alert("Network Error"); btnEl.innerHTML = 'Retry API'; btnEl.disabled = false; }
+        }
+    </script>
+</body>
+</html>
